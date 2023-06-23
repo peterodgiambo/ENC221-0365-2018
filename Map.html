@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<lang=en>
+<html>
+<head>
+    <title>Unum project</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/css.css">
+<head>
+<body>
+<p>Same content above the photo</p>
+
+<div class="img-wrapper">
+
+<img src="images/Map.jpg" usemap="#image-map">
+
+<map name="image-map">
+    <area target="_top" alt="fern" title="fern" coords="1891,1042,1621,774" shape="rect" href="images/fern.jpg" onclick="clickmap('Let the path guide your feet and your heart on the journey')">
+    <area target="_top" alt="bench" title="bench" coords="580,507,755,644" shape="rect" href="images/grapes.jpg" onclick="clickmap('someinfo 2')">
+    <area target="_top" alt="leaves" title="leaves"  coords="209,114,531,290" shape="rect" href="images/pineapple.jpg" onclick="clickmap('someinfo 3')">
+</map>
+
+
+</div>
+
+<p>Same content below the photo</p>
+<script>
+          function clickmap(info) {
+              alert(info)
+
+          }
+      </script>
+
+
+<script type="text/javascript">
+    const imgWrapper = document.querySelector('.img-wrapper');
+const img = imgWrapper.querySelector('img');
+let isZoomedIn = false;
+const scale = 1.5;
+
+function moveEventHandler(event) {
+  shiftContent(event, event.target.parentNode);
+  event.currentTarget.style.transition = 'none';
+};
+
+function shiftContent(event, container) {
+  const element = event.target;
+  const { height, width } = element.getBoundingClientRect();
+  const containerRect  = container.getBoundingClientRect();
+  const cursorPosX = (event.pageX - containerRect.left) / containerRect.width;
+  const cursorPosY = (event.pageY - containerRect.top) / containerRect.height;
+ 
+  const imgOverflowLeft = (width - containerRect.width) / 2
+  const shiftX = (1 - cursorPosX * 2) * imgOverflowLeft;
+  element.style.left = shiftX + 'px';
+ 
+  const imgOverflowTop = (height - containerRect.height) / 2;
+  const shiftY = (1 - cursorPosY * 2) * imgOverflowTop;
+  element.style.top = shiftY + 'px';
+}
+
+function clickEventHandler(event) {
+  const element = event.currentTarget;
+  element.style.transition = 'transform 0.2s, left 0.3s, top 0.3s';
+  const { height, width } = element.getBoundingClientRect();
+ 
+  isZoomedIn = !isZoomedIn;
+ 
+  if (isZoomedIn) {
+    // First, zoom in
+    element.style.transform = `scale(${scale})`;
+    element.style.cursor = 'zoom-out';
+    
+    // Second, shift the image
+    // Note: Shifting the image before it's fully zoomed in may look weird. This is why we delay the shifting.
+    setTimeout(() => {
+      shiftContent(event, element.parentNode);
+      img.addEventListener('mousemove', moveEventHandler, true);
+    }, 200);
+  } else {
+    element.style.cursor = 'zoom-in';
+    element.style.left = 0;
+    element.style.top = 0;
+    img.removeEventListener('mousemove', moveEventHandler, true);
+    
+    setTimeout(() => {
+      element.style.transform = 'scale(1)';
+    }, 200);
+  }
+}
+
+img.style.willChange = 'transform, left, top';
+img.addEventListener('click', clickEventHandler, true);
+</script>
+</body>
+</html>
